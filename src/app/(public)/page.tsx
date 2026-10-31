@@ -152,7 +152,7 @@ function Homepage() {
             <span className="leading-tight">New customer? Get your 10% discount now</span>
           </Link>
           <p className="mt-5 text-xs text-white/80">
-            10% off parts on repairs under $1,000. Labor is not discounted. Coupon is good for 24 hours. One per new customer.
+            10% off parts on repairs under $1,000. Labor is not discounted. One per new customer. Valid until the date and time shown on your coupon.
           </p>
         </div>
       </section>
