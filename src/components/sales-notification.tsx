@@ -53,6 +53,21 @@ interface NotificationData {
   action: string;
 }
 
+// Check if the current time in Jacksonville (ET) is Mon-Sat, 8:00 AM - 6:30 PM.
+const isShopOpen = (): boolean => {
+  const etDate = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const day = etDate.getDay(); // 0 = Sunday, 1 = Monday...
+  const hour = etDate.getHours();
+  const minute = etDate.getMinutes();
+
+  if (day === 0) return false; // Closed Sunday
+  if (hour < 8) return false; // Before 8:00 AM
+  if (hour > 18) return false; // After 6:00 PM (18:00)
+  if (hour === 18 && minute > 30) return false; // After 6:30 PM
+
+  return true;
+};
+
 const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 const buildNotification = (): NotificationData => {
@@ -71,8 +86,15 @@ const SalesNotification = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // Prevent initialization entirely if the shop is closed.
+    if (!isShopOpen()) return;
+
     const scheduleNext = () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+      // Stop scheduling if it passes 6:30 PM while the user is actively on the site.
+      if (!isShopOpen()) return;
+
       const gap = Math.floor(Math.random() * (MAX_GAP_MS - MIN_GAP_MS + 1)) + MIN_GAP_MS;
 
       timeoutRef.current = setTimeout(() => {
@@ -97,9 +119,8 @@ const SalesNotification = () => {
 
   return (
     <div
-      className={`fixed bottom-5 left-5 z-50 bg-white rounded-xl shadow-2xl p-4 w-80 transform transition-all duration-500 ease-in-out ${
-        isVisible ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
-      }`}
+      className={`fixed bottom-5 left-5 z-50 bg-white rounded-xl shadow-2xl p-4 w-80 transform transition-all duration-500 ease-in-out ${isVisible ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
+        }`}
     >
       <div className="flex items-center">
         <div className="flex-shrink-0">
